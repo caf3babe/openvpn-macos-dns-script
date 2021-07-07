@@ -1,8 +1,10 @@
 #!/usr/bin/env bash
 #
 # Original script by 
-# Adopted to work with MacOS BigSUR
+# Adapted to work with MacOS BigSUR
 # 
+# It creates a file under /etc/resolver named by the domain and adds the nameservers to it
+# with that MacOS creates a custom resolver which works for that specific domain
 
 split_into_parts()
 {
