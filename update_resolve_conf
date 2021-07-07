@@ -1,0 +1,48 @@
+#!/usr/bin/env bash
+#
+# Original script by 
+# Adopted to work with MacOS BigSUR
+# 
+
+split_into_parts()
+{
+	part1="$1"
+	part2="$2"
+	part3="$3"
+}
+
+[ "$script_type" ] || exit 0
+[ "$dev" ] || exit 0
+
+NMSRVRS=""
+	SRCHS=""
+	foreign_options=$(printf '%s\n' ${!foreign_option_*} | /usr/bin/sort -t _ -k 3 -g)
+	for optionvarname in ${foreign_options} ; do
+		option="${!optionvarname}"
+		echo "$option"
+		split_into_parts $option
+		if [ "$part1" = "dhcp-option" ] ; then
+			if [ "$part2" = "DNS" ] ; then
+				NMSRVRS="${NMSRVRS:+$NMSRVRS }$part3"
+			elif [ "$part2" = "DOMAIN" ] ; then
+				SRCHS="${SRCHS:+$SRCHS }$part3"
+			fi
+		fi
+	done
+	R=""
+	[ "$SRCHS" ] && R="domain $SRCHS
+search $SRCHS
+"
+	for NS in $NMSRVRS ; do
+        R="${R}nameserver $NS
+"
+	done
+
+case "$script_type" in
+  up)
+	echo -n "$R" > /etc/resolver/$SRCHS
+	;;
+  down)
+	rm /etc/resolver/$SRCHS
+	;;
+esac
